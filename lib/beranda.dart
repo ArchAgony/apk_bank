@@ -69,6 +69,7 @@ class HomeScreen extends StatelessWidget {
             subtitle: Text("Vera"),
           ),
           Container(
+            width: double.infinity,
             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(

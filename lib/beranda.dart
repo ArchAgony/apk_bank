@@ -9,23 +9,61 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: HomeScreen(),
-    );
+    return MaterialApp(debugShowCheckedModeBanner: false, home: HomeScreen());
   }
 }
 
 class HomeScreen extends StatelessWidget {
+  // isi menu beranda
   final List<Map<String, dynamic>> menuItems = [
-    {"icon": Icons.send, "label": "Transfer", "color": Colors.teal},
-    {"icon": Icons.account_balance_wallet, "label": "Cek Saldo", "color": Colors.blue},
-    {"icon": Icons.payment, "label": "Pembayaran", "color": Colors.purple},
-    {"icon": Icons.add_card, "label": "Isi Saldo", "color": Colors.indigo},
-    {"icon": Icons.history, "label": "Riwayat", "color": Colors.green},
-    {"icon": Icons.info, "label": "Informasi", "color": Colors.cyan},
-    {"icon": Icons.settings, "label": "Pengaturan", "color": Colors.yellow.shade700},
-    {"icon": Icons.more_horiz, "label": "Lainnya", "color": Colors.orange},
+    {
+      "icon": Icons.send,
+      "label": "Transfer",
+      "color": Colors.teal,
+      "builder": null,
+    },
+    {
+      "icon": Icons.account_balance_wallet,
+      "label": "Cek Saldo",
+      "color": Colors.blue,
+      "builder": null,
+    },
+    {
+      "icon": Icons.payment,
+      "label": "Pembayaran",
+      "color": Colors.purple,
+      "builder": null,
+    },
+    {
+      "icon": Icons.add_card,
+      "label": "Isi Saldo",
+      "color": Colors.indigo,
+      "builder": null,
+    },
+    {
+      "icon": Icons.history,
+      "label": "Riwayat",
+      "color": Colors.green,
+      "builder": null,
+    },
+    {
+      "icon": Icons.info,
+      "label": "Informasi",
+      "color": Colors.cyan,
+      "builder": null,
+    },
+    {
+      "icon": Icons.settings,
+      "label": "Pengaturan",
+      "color": Colors.yellow.shade700,
+      "builder": null,
+    },
+    {
+      "icon": Icons.more_horiz,
+      "label": "Lainnya",
+      "color": Colors.orange,
+      "builder": null,
+    },
   ];
 
   HomeScreen({super.key});
@@ -43,9 +81,10 @@ class HomeScreen extends StatelessWidget {
             Text(
               "BRN",
               style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 22),
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+                fontSize: 22,
+              ),
             ),
             const SizedBox(width: 4),
             const Icon(Icons.wifi, color: Colors.orange),
@@ -79,20 +118,29 @@ class HomeScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: const [
-                Text("Saldo Utama",
-                    style: TextStyle(color: Colors.white, fontSize: 14)),
+                Text(
+                  "Saldo Utama",
+                  style: TextStyle(color: Colors.white, fontSize: 14),
+                ),
                 SizedBox(height: 4),
-                Text("Rp 123.456",
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold)),
+                Text(
+                  "Rp 123.456",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 SizedBox(height: 4),
-                Text("123456789",
-                    style: TextStyle(color: Colors.white70, fontSize: 14)),
+                Text(
+                  "123456789",
+                  style: TextStyle(color: Colors.white70, fontSize: 14),
+                ),
               ],
             ),
           ),
+
+          // tempat nambah menu
           Expanded(
             child: GridView.builder(
               padding: const EdgeInsets.all(16),
@@ -104,27 +152,48 @@ class HomeScreen extends StatelessWidget {
               ),
               itemCount: menuItems.length,
               itemBuilder: (context, index) {
-                return Column(
-                  children: [
-                    CircleAvatar(
-                      radius: 26,
-                      backgroundColor: menuItems[index]["color"],
-                      child: Icon(
-                        menuItems[index]["icon"],
-                        color: Colors.white,
-                      ),
+                final m = menuItems[index];
+
+                return Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(12),
+                    onTap: () {
+                      final builder = m['builder'] as WidgetBuilder?;
+                      if (builder == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Fitur belum tersedia')),
+                        );
+                        return;
+                      }
+                      Navigator.of(
+                        context,
+                      ).push(MaterialPageRoute(builder: builder));
+                    },
+                    child: Column(
+                      children: [
+                        CircleAvatar(
+                          radius: 26,
+                          backgroundColor: m["color"] as Color,
+                          child: Icon(
+                            m["icon"] as IconData,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          m["label"] as String,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 6),
-                    Text(
-                      menuItems[index]["label"],
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 12),
-                    ),
-                  ],
+                  ),
                 );
               },
             ),
           ),
+
           Container(
             width: double.infinity,
             color: Colors.orange,
@@ -132,10 +201,13 @@ class HomeScreen extends StatelessWidget {
             child: const Center(
               child: Text(
                 "Tim Mencari Cinta Sejati",
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-          )
+          ),
         ],
       ),
     );

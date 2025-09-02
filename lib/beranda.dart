@@ -1,3 +1,6 @@
+import 'package:apk_bank/Informasi.dart';
+import 'package:apk_bank/riwayat_transfer.dart';
+import 'package:apk_bank/transfer.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -20,7 +23,7 @@ class HomeScreen extends StatelessWidget {
       "icon": Icons.send,
       "label": "Transfer",
       "color": Colors.teal,
-      "builder": null,
+      "builder": (BuildContext context) => const TransferPage(),
     },
     {
       "icon": Icons.account_balance_wallet,
@@ -44,13 +47,13 @@ class HomeScreen extends StatelessWidget {
       "icon": Icons.history,
       "label": "Riwayat",
       "color": Colors.green,
-      "builder": null,
+      "builder": (BuildContext context) => const RiwayatTransferPage  (),
     },
     {
       "icon": Icons.info,
       "label": "Informasi",
       "color": Colors.cyan,
-      "builder": null,
+      "builder": (BuildContext context) => InformasiTimPage(),
     },
     {
       "icon": Icons.settings,

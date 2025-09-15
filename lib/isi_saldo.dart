@@ -1,20 +1,6 @@
 import 'package:flutter/material.dart';
-
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: const IsiSaldoPage(),
-    );
-  }
-}
+import 'package:provider/provider.dart';
+import 'saldo_provider.dart';
 
 class IsiSaldoPage extends StatefulWidget {
   const IsiSaldoPage({super.key});
@@ -66,8 +52,7 @@ class _IsiSaldoPageState extends State<IsiSaldoPage> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red,
                     foregroundColor: Colors.white,
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 30, vertical: 13),
+                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 13),
                   ),
                   onPressed: () {
                     Navigator.pop(context);
@@ -78,16 +63,32 @@ class _IsiSaldoPageState extends State<IsiSaldoPage> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
                     foregroundColor: Colors.white,
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 30, vertical: 13),
+                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 13),
                   ),
-                  onPressed: () {   
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                            "Mengisi saldo sebesar Rp ${nominalController.text}"),
-                      ),
-                    );
+                  onPressed: () {
+                    final nominal = int.tryParse(nominalController.text) ?? 0;
+                    if (nominal > 0) {
+                      // Tambah saldo
+                      context.read<SaldoProvider>().tambahSaldo(nominal);
+
+                      // Tampilkan alert sukses
+                      showDialog(
+                        context: context,
+                        builder: (_) => AlertDialog(
+                          title: const Text("Berhasil"),
+                          content: Text("Saldo berhasil diisi Rp $nominal"),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context); // tutup alert
+                                Navigator.pop(context); // kembali ke beranda
+                              },
+                              child: const Text("OK"),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
                   },
                   child: const Text("Isi Sekarang"),
                 ),

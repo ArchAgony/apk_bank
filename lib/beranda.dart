@@ -1,78 +1,69 @@
-import 'package:apk_bank/Informasi.dart';
-import 'package:apk_bank/riwayat_transfer.dart';
-import 'package:apk_bank/transfer.dart';
 import 'package:flutter/material.dart';
-
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(debugShowCheckedModeBanner: false, home: HomeScreen());
-  }
-}
+import 'package:provider/provider.dart';
+import 'saldo_provider.dart';
+import 'isi_saldo.dart';
+import 'transfer.dart';
+import 'riwayat_transfer.dart';
+import 'informasi.dart';
 
 class HomeScreen extends StatelessWidget {
-  // isi menu beranda
-  final List<Map<String, dynamic>> menuItems = [
-    {
-      "icon": Icons.send,
-      "label": "Transfer",
-      "color": Colors.teal,
-      "builder": (BuildContext context) => const TransferPage(),
-    },
-    {
-      "icon": Icons.account_balance_wallet,
-      "label": "Cek Saldo",
-      "color": Colors.blue,
-      "builder": null,
-    },
-    {
-      "icon": Icons.payment,
-      "label": "Pembayaran",
-      "color": Colors.purple,
-      "builder": null,
-    },
-    {
-      "icon": Icons.add_card,
-      "label": "Isi Saldo",
-      "color": Colors.indigo,
-      "builder": null,
-    },
-    {
-      "icon": Icons.history,
-      "label": "Riwayat",
-      "color": Colors.green,
-      "builder": (BuildContext context) => const RiwayatTransferPage  (),
-    },
-    {
-      "icon": Icons.info,
-      "label": "Informasi",
-      "color": Colors.cyan,
-      "builder": (BuildContext context) => InformasiTimPage(),
-    },
-    {
-      "icon": Icons.settings,
-      "label": "Pengaturan",
-      "color": Colors.yellow.shade700,
-      "builder": null,
-    },
-    {
-      "icon": Icons.more_horiz,
-      "label": "Lainnya",
-      "color": Colors.orange,
-      "builder": null,
-    },
-  ];
-
-  HomeScreen({super.key});
+  const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final saldo = context.watch<SaldoProvider>().saldo; // ✅ saldo global
+
+    final List<Map<String, dynamic>> menuItems = [
+      {
+        "icon": Icons.send,
+        "label": "Transfer",
+        "color": Colors.teal,
+        "builder": (BuildContext context) => const TransferPage(),
+      },
+      {
+        "icon": Icons.account_balance_wallet,
+        "label": "Cek Saldo",
+        "color": Colors.blue,
+        "builder": null,
+      },
+      {
+        "icon": Icons.payment,
+        "label": "Pembayaran",
+        "color": Colors.purple,
+        "builder": null,
+      },
+      {
+        "icon": Icons.add_card,
+        "label": "Isi Saldo",
+        "color": Colors.indigo,
+        "builder": (BuildContext context) => const IsiSaldoPage(),
+      },
+      {
+        "icon": Icons.history,
+        "label": "Riwayat",
+        "color": Colors.green,
+        "builder": (BuildContext context) => const RiwayatTransferPage(),
+      },
+      {
+        "icon": Icons.info,
+        "label": "Informasi",
+        "color": Colors.cyan,
+        "builder": (BuildContext context) => InformasiTimPage(),
+      },
+      {
+        "icon": Icons.settings,
+        "label": "Pengaturan",
+        "color": Colors.yellow,
+        "builder": null,
+      },
+      {
+        "icon": Icons.more_horiz,
+        "label": "Lainnya",
+        "color": Colors.orange,
+        "builder": null,
+      },
+    ];
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -80,7 +71,7 @@ class HomeScreen extends StatelessWidget {
         elevation: 0,
         backgroundColor: Colors.white,
         title: Row(
-          children: [
+          children: const [
             Text(
               "BRN",
               style: TextStyle(
@@ -89,8 +80,8 @@ class HomeScreen extends StatelessWidget {
                 fontSize: 22,
               ),
             ),
-            const SizedBox(width: 4),
-            const Icon(Icons.wifi, color: Colors.orange),
+            SizedBox(width: 4),
+            Icon(Icons.wifi, color: Colors.orange),
           ],
         ),
         actions: const [
@@ -110,6 +101,7 @@ class HomeScreen extends StatelessWidget {
             title: Text("Selamat Datang,"),
             subtitle: Text("Vera"),
           ),
+          // saldo utama
           Container(
             width: double.infinity,
             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -120,30 +112,23 @@ class HomeScreen extends StatelessWidget {
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
+                const Text("Saldo Utama", style: TextStyle(color: Colors.white, fontSize: 14)),
+                const SizedBox(height: 4),
                 Text(
-                  "Saldo Utama",
-                  style: TextStyle(color: Colors.white, fontSize: 14),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  "Rp 123.456",
-                  style: TextStyle(
+                  "Rp $saldo",
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: 4),
-                Text(
-                  "123456789",
-                  style: TextStyle(color: Colors.white70, fontSize: 14),
-                ),
+                const SizedBox(height: 4),
+                const Text("123456789", style: TextStyle(color: Colors.white70, fontSize: 14)),
               ],
             ),
           ),
-
-          // tempat nambah menu
+          // grid menu
           Expanded(
             child: GridView.builder(
               padding: const EdgeInsets.all(16),
@@ -169,19 +154,14 @@ class HomeScreen extends StatelessWidget {
                         );
                         return;
                       }
-                      Navigator.of(
-                        context,
-                      ).push(MaterialPageRoute(builder: builder));
+                      Navigator.of(context).push(MaterialPageRoute(builder: builder));
                     },
                     child: Column(
                       children: [
                         CircleAvatar(
                           radius: 26,
                           backgroundColor: m["color"] as Color,
-                          child: Icon(
-                            m["icon"] as IconData,
-                            color: Colors.white,
-                          ),
+                          child: Icon(m["icon"] as IconData, color: Colors.white),
                         ),
                         const SizedBox(height: 6),
                         Text(
@@ -196,7 +176,6 @@ class HomeScreen extends StatelessWidget {
               },
             ),
           ),
-
           Container(
             width: double.infinity,
             color: Colors.orange,
@@ -204,10 +183,7 @@ class HomeScreen extends StatelessWidget {
             child: const Center(
               child: Text(
                 "Tim Mencari Cinta Sejati",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
               ),
             ),
           ),

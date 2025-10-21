@@ -1,25 +1,7 @@
 import 'package:flutter/material.dart';
-
-// void main() {
-//   runApp(const Transfer());
-// }
-
-class Transfer extends StatelessWidget {
-  const Transfer({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Transfer',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF0F8A8A)),
-        useMaterial3: true,
-      ),
-      home: const TransferPage(),
-    );
-  }
-}
+import 'package:provider/provider.dart';
+import 'saldo_provider.dart';
+import 'konfirmasi_transfer.dart';
 
 class TransferPage extends StatefulWidget {
   const TransferPage({super.key});
@@ -30,7 +12,6 @@ class TransferPage extends StatefulWidget {
 
 class _TransferPageState extends State<TransferPage> {
   final _formKey = GlobalKey<FormState>();
-
   final _rekTujuanC = TextEditingController();
   final _namaPenerimaC = TextEditingController();
   final _nominalC = TextEditingController();
@@ -62,13 +43,18 @@ class _TransferPageState extends State<TransferPage> {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 1.4),
+        borderSide: BorderSide(
+          color: Theme.of(context).colorScheme.primary,
+          width: 1.4,
+        ),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final saldoProvider = Provider.of<SaldoProvider>(context);
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
@@ -78,15 +64,6 @@ class _TransferPageState extends State<TransferPage> {
         foregroundColor: Colors.black87,
         elevation: 0.4,
       ),
-      bottomNavigationBar: Container(
-        height: 42,
-        color: Colors.orange, // kuning-oranye
-        alignment: Alignment.center,
-        child: const Text(
-          'Tim Mencari Cinta Sejati',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
-        ),
-      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
@@ -94,12 +71,12 @@ class _TransferPageState extends State<TransferPage> {
             key: _formKey,
             child: Column(
               children: [
-                // Kartu info akun
+                // Kartu saldo
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF0F8A8A), // teal
+                    color: Colors.teal[800]!,
                     borderRadius: BorderRadius.circular(14),
                     boxShadow: const [
                       BoxShadow(
@@ -111,10 +88,10 @@ class _TransferPageState extends State<TransferPage> {
                   ),
                   child: Row(
                     children: [
-                      Expanded(
+                      const Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
+                          children: [
                             Text(
                               '12345678',
                               style: TextStyle(
@@ -138,15 +115,18 @@ class _TransferPageState extends State<TransferPage> {
                       const SizedBox(width: 12),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
-                        children: const [
-                          Text(
+                        children: [
+                          const Text(
                             'Saldo Anda:',
-                            style: TextStyle(color: Colors.white70, fontSize: 12),
-                          ),
-                          SizedBox(height: 2),
-                          Text(
-                            'Rp 123.456',
                             style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 12,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            "Rp ${saldoProvider.saldo}",
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
@@ -159,19 +139,27 @@ class _TransferPageState extends State<TransferPage> {
                 ),
                 const SizedBox(height: 16),
 
-                // Field input
+                // Input
                 TextFormField(
                   controller: _rekTujuanC,
                   keyboardType: TextInputType.number,
                   decoration: _input('Masukkan No. Rekening Tujuan'),
-                  validator: (v) => (v == null || v.trim().isEmpty) ? 'Rekening tujuan wajib diisi' : null,
+                  validator:
+                      (v) =>
+                          (v == null || v.trim().isEmpty)
+                              ? 'Rekening tujuan wajib diisi'
+                              : null,
                 ),
                 const SizedBox(height: 10),
                 TextFormField(
                   controller: _namaPenerimaC,
                   textCapitalization: TextCapitalization.words,
                   decoration: _input('Masukkan Nama Penerima'),
-                  validator: (v) => (v == null || v.trim().isEmpty) ? 'Nama penerima wajib diisi' : null,
+                  validator:
+                      (v) =>
+                          (v == null || v.trim().isEmpty)
+                              ? 'Nama penerima wajib diisi'
+                              : null,
                 ),
                 const SizedBox(height: 10),
                 TextFormField(
@@ -179,9 +167,12 @@ class _TransferPageState extends State<TransferPage> {
                   keyboardType: TextInputType.number,
                   decoration: _input('Masukkan Nominal Transfer'),
                   validator: (v) {
-                    if (v == null || v.trim().isEmpty) return 'Nominal wajib diisi';
-                    final value = int.tryParse(v.replaceAll('.', '').replaceAll(',', ''));
-                    if (value == null || value <= 0) return 'Nominal tidak valid';
+                    if (v == null || v.trim().isEmpty)
+                      return 'Nominal wajib diisi';
+                    final value = int.tryParse(v);
+                    if (value == null || value <= 0)
+                      return 'Nominal tidak valid';
+                    if (value > saldoProvider.saldo) return 'Saldo tidak cukup';
                     return null;
                   },
                 ),
@@ -190,10 +181,9 @@ class _TransferPageState extends State<TransferPage> {
                   controller: _keteranganC,
                   decoration: _input('Masukkan Keterangan'),
                 ),
-
                 const SizedBox(height: 18),
 
-                // Tombol aksi
+                // Tombol
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -202,8 +192,10 @@ class _TransferPageState extends State<TransferPage> {
                         backgroundColor: Colors.red,
                         foregroundColor: Colors.white,
                         shape: const StadiumBorder(),
-                        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
-                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 22,
+                          vertical: 10,
+                        ),
                       ),
                       onPressed: () {
                         _formKey.currentState?.reset();
@@ -211,41 +203,34 @@ class _TransferPageState extends State<TransferPage> {
                         _namaPenerimaC.clear();
                         _nominalC.clear();
                         _keteranganC.clear();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Form dibersihkan')),
-                        );
                       },
                       child: const Text('Batal'),
                     ),
                     const SizedBox(width: 16),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
+                        backgroundColor: Colors.teal[800!],
                         foregroundColor: Colors.white,
                         shape: const StadiumBorder(),
-                        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
-                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 22,
+                          vertical: 10,
+                        ),
                       ),
                       onPressed: () {
                         if (_formKey.currentState?.validate() ?? false) {
-                          // Simulasi lanjut/konfirmasi
-                          showDialog(
-                            context: context,
-                            builder: (_) => AlertDialog(
-                              title: const Text('Konfirmasi'),
-                              content: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text('Rek Tujuan: ${_rekTujuanC.text}'),
-                                  Text('Nama: ${_namaPenerimaC.text}'),
-                                  Text('Nominal: ${_nominalC.text}'),
-                                  Text('Ket: ${_keteranganC.text.isEmpty ? "-" : _keteranganC.text}'),
-                                ],
-                              ),
-                              actions: [
-                                TextButton(onPressed: () => Navigator.pop(context), child: const Text('Tutup')),
-                              ],
+                          final nominal = int.parse(_nominalC.text);
+
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder:
+                                  (_) => KonfirmasiTransfer(
+                                    rekTujuan: _rekTujuanC.text,
+                                    namaPenerima: _namaPenerimaC.text,
+                                    nominal: nominal,
+                                    keterangan: _keteranganC.text,
+                                  ),
                             ),
                           );
                         }
